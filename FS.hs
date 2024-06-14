@@ -120,3 +120,6 @@ borrar = undefined
 -- 11
 ordenar :: FS-> FS
 ordenar = undefined
+
+Hola :: FS
+Hola = undefined
