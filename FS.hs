@@ -1,4 +1,9 @@
-c
+{-#LANGUAGE GADTs #-}
+{-# OPTIONS_GHC -fno-warn-tabs #-}
+
+module FS where 
+
+import Prelude
 
 -- Nombre: Estudiante 1
 -- Número: Estudiante 1
