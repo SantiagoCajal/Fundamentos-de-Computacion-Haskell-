@@ -6,6 +6,7 @@
 {-# HLINT ignore "Collapse lambdas" #-}
 {-# HLINT ignore "Use if" #-}
 {-# HLINT ignore "Redundant bracket" #-}
+{-# HLINT ignore "Use lambda" #-}
 
 module FS where 
 
@@ -31,15 +32,14 @@ data FS where {  A :: (Nombre,Ext) -> FS;
 ----
 -- 1
 
-cjazz :: FS 
-cjazz = C "jazz" [A ("mumbles", Mp3)]
+cjazz::FS
+cjazz = C "jazz" [ A("mumbles",Mp3) ]
 
-crock :: FS 
-crock = C "rock" [ A ("clones", Mp3), A ("bajan", Mp3), A ("clara", Mp3)]
+crock::FS
+crock = C "rock" [ A("clones",Mp3), A("bajan",Mp3), A("clara",Mp3) ]
 
-cmusica :: FS
-cmusica = C "musica" [cjazz, crock, A ("clara", Mp3)]
-
+cmusica::FS
+cmusica = C "musica"[ cjazz, crock, A("clara",Mp3) ]
 
 -- Completar el resto de los componentes del FS
 
@@ -47,7 +47,7 @@ cort :: FS
 cort = C "ort" [ cobls, A ("notas", Txt)]
 
 cobls :: FS
-cobls = C "obls" [ A ("p2", Txt), A ("notas", Jar), A ("notas", Hs)] 
+cobls = C "obls" [ A ("p2", Txt), A ("p2", Jar), A ("fc", Hs)] 
 
 csys :: FS
 csys = C "sys" [ A ("sys", Txt), C "sys" []]
@@ -250,8 +250,41 @@ borrar = \n -> \f -> case f of {
 ----
 -- 11
 
+alfabeticamente :: FS -> FS -> Bool
+alfabeticamente = \f -> \g -> case f of {
+  A (n,e) -> case g of {
+    A (m,f) -> (n ++ (stringExtension (A (n,e)))) <=  (m ++ (stringExtension (A (m,f))));
+    C m l ->  (n ++ (stringExtension (A (n,e))) <= m)
+  };
+  C n l -> case g of {
+    A (m,f) -> n <=  (m ++ (stringExtension (A (m,f))));
+    C m h -> n <= m
+  }
+}
+
+insertarOrdenadamente :: FS -> FS -> FS
+insertarOrdenadamente = \f -> \g -> case g of {
+  A (n,e) -> error "no se puede insertar en un archivo";
+  C n l -> case l of {
+    [] -> C n [f];
+    x:xs -> case (alfabeticamente (f) (x)) of {
+      True -> C n (f:x:xs);
+      False -> meterCarpeta (insertarOrdenadamente f (C n xs)) x
+    }
+  }
+}
+
 ordenar :: FS-> FS
-ordenar = undefined
+ordenar = \f -> case f of {
+  A (n,e) -> A (n,e);
+  C n l -> case l of {
+    [] -> C n l;
+    x:xs -> case x of {
+      A (m,e) -> insertarOrdenadamente (A (m,e)) (ordenar (C n xs));
+      C m o -> insertarOrdenadamente (ordenar (C m o)) (ordenar (C n xs))
+    }
+  }
+}
 
 ----
 -- Extras

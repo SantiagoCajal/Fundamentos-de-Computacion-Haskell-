@@ -1,5 +1,13 @@
 {-#LANGUAGE GADTs#-}
 {-# OPTIONS_GHC -fno-warn-tabs #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use lambda-case" #-}
+{-# HLINT ignore "Redundant lambda" #-}
+{-# HLINT ignore "Redundant bracket" #-}
+{-# HLINT ignore "Use if" #-}
+{-# HLINT ignore "Use infix" #-}
+{-# HLINT ignore "Evaluate" #-}
+{-# HLINT ignore "Use lambda" #-}
 
 module Listas where
 
@@ -68,11 +76,3 @@ snd = \p -> case p of {(x,y) -> y}
 zip :: [a]-> [b]-> [(a,b)]
 zip = \l z -> case l of{ [] -> [] ; x:xs -> case z of{[] -> [] ; y:ys -> (x,y): (zip xs ys)}}
 
-menMay :: Ord a => [a] -> a -> ([a],[a])
-menMay = \l n case l of{
-    [] -> ([],[]);
-    x:xs -> case x < n of {
-        True -> (x: fst (menMay xs n), snd (menMay xs n));
-        False -> (fst (menMay xs n), x: snd (menMay xs n)) 
-    }
-}
