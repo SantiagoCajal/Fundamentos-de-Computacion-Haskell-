@@ -60,7 +60,7 @@ craiz = C "raiz" [cmusica, A ("notas", Txt), cort, csys]
 
 nombre :: FS -> Nombre
 nombre = \f -> case f of {
-    A (n,e) -> n;
+    A (n,e) -> n ++ stringExtension (A (n,e));
     C m l -> m
 }
 
