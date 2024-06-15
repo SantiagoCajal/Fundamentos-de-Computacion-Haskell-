@@ -150,27 +150,112 @@ valido = \f -> case f of {
 
 ----
 -- 7
+
 archivosExt :: Ext -> FS -> [Nombre]
-archivosExt = undefined
+archivosExt = \e -> \f -> case f of {
+  A (n,g) -> case ( g == e) of {
+    False -> [];
+    True -> [n]
+  };
+  C n l -> case l of {
+    [] -> [];
+    x:xs -> case x of {
+      A (m,g) -> case ( g == e) of {
+        False -> archivosExt e (C n xs);
+        True -> m:(archivosExt e (C n xs))
+      };
+      C m g -> (archivosExt e (C m g)) ++ ( archivosExt e (C n xs))
+    }
+  }
+}
+
 ----
 -- 8
+
+mapArboles :: [FS] ->  ( Nombre -> Nombre -> FS -> FS) -> Nombre -> Nombre -> [FS] 
+mapArboles = \l -> \f -> \n -> \m -> case l of {
+  [] -> [];
+  x:xs -> (f n m x):(mapArboles xs f n m)
+}
+
 cambiarNom :: Nombre -> Nombre -> FS -> FS
-cambiarNom = undefined
+cambiarNom = \n -> \m -> \f -> case f of {
+  A (o,e) -> case ( o == n) of {
+    False -> A (o,e);
+    True -> A (m,e)
+  };
+  C o l -> case ( o == n ) of {
+    False -> C o (mapArboles l cambiarNom n m);
+    True -> C m (mapArboles l cambiarNom n m);
+  }
+}
+
 ----
 -- 9
+
 nivelesC :: FS -> Int
-nivelesC = undefined
+nivelesC = \f -> case f of {
+  A (n,e) -> 0;
+  C n l -> case l of {
+    [] -> 1;
+    x:xs ->case xs of {
+      [] -> 1 +  (nivelesC x);
+      y:ys -> case ((nivelesC x) >= (nivelesC y)) of {
+        True -> nivelesC (C n (x:ys));
+        False -> nivelesC (C n (y:ys))
+      }
+    }
+  }
+}
+
 ----
 -- 10
+
+stringExtension :: FS -> String
+stringExtension = \f -> case f of {
+  A (n,e) -> case e of {
+    Txt -> ".txt";
+    Mp3 -> ".mp3";
+    Jar -> ".jar";
+    Doc -> ".doc";
+    Hs -> ".hs";
+  };
+  C n l -> error "no tiene extension"
+}
+
+meterCarpeta :: FS -> FS -> FS
+meterCarpeta = \f -> \e -> case f of {
+  A (n,e) -> error "no es una carpeta";
+  C n l -> C n (e:l)
+}
+
 borrar :: Nombre -> FS -> FS
-borrar = undefined
+borrar = \n -> \f -> case f of {
+  A (m, e) -> A (m, e);
+  C m l -> case l of {
+    [] -> C m l;
+    x:xs -> case x of {
+      A (o,e) -> case (o ++ (stringExtension (A (o,e))) == n) of {
+        True -> borrar n (C m xs);
+        False -> meterCarpeta (borrar n (C m xs)) (A (o,e))
+      };
+      C o e -> case (o == n) of {
+        True -> borrar n (C m xs);
+        False -> meterCarpeta (borrar n (C m xs)) (borrar n (C o e))
+      }
+    }
+  }
+}
+
 ----
 -- 11
+
 ordenar :: FS-> FS
 ordenar = undefined
 
 ----
 -- Extras
+-- Funciones auxiliares que cree para otras funciones pero que al final no furon necesarias 
 
 archivosNombresIguales :: FS -> FS -> Bool
 archivosNombresIguales = \f -> \g -> case f of {
@@ -190,3 +275,12 @@ carpetasNombresIguales = \f -> \g -> case f of {
     C m i -> m==n
   }  
 }
+
+
+sustituirCarpeta :: FS -> [FS] -> FS
+sustituirCarpeta = \f -> \e -> case f of {
+  A (n,g) -> error "no es una carpeta";
+  C n l -> C n e
+}
+
+
