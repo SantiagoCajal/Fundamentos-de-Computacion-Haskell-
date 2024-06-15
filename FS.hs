@@ -1,5 +1,11 @@
 {-#LANGUAGE GADTs #-}
 {-# OPTIONS_GHC -fno-warn-tabs #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant lambda" #-}
+{-# HLINT ignore "Use lambda-case" #-}
+{-# HLINT ignore "Collapse lambdas" #-}
+{-# HLINT ignore "Use if" #-}
+{-# HLINT ignore "Redundant bracket" #-}
 
 module FS where 
 
@@ -23,15 +29,6 @@ data FS where {  A :: (Nombre,Ext) -> FS;
   deriving (Eq, Show)
 
 ----
--- Previo a las resoluciones de ejericios se volveran a definir funciones auxiliares empleadas en las resoluciones de los problemas
-map :: (a -> b) -> [a] -> [b]
-map = undefined
-
-sum :: Num a => [a] -> a
-sum = undefined
-
-	
-----
 -- 1
 
 cjazz :: FS 
@@ -53,7 +50,7 @@ cobls :: FS
 cobls = C "obls" [ A ("p2", Txt), A ("notas", Jar), A ("notas", Hs)] 
 
 csys :: FS
-csys = C "sys" [ A ("sys", Txt), csys]
+csys = C "sys" [ A ("sys", Txt), C "sys" []]
 
 craiz :: FS
 craiz = C "raiz" [cmusica, A ("notas", Txt), cort, csys]
@@ -62,15 +59,9 @@ craiz = C "raiz" [cmusica, A ("notas", Txt), cort, csys]
 -- 2
 
 nombre :: FS -> Nombre
-nombre = \f -> case f of{
-  C n l -> n;
-  A (n,e) -> case e of {
-    Txt -> n + ".txt";
-    Mp3 -> n + ".mp3";
-    Jar -> n + ".jar";
-    Doc -> n + ".doc";
-    Hs -> n + ".hs"
-  }
+nombre = \f -> case f of {
+    A (n,e) -> n;
+    C m l -> m
 }
 
 ----
@@ -79,47 +70,123 @@ nombre = \f -> case f of{
 contenido :: FS-> [Nombre]
 contenido = \f -> case f of{
   A (n,e) -> error "no es una carpeta";
-  C n l -> l
+  C m l -> map nombre l
 }
 
 ----
 -- 4
 
-cantA :: FS -> Int 
+cantA :: FS -> Int
 cantA = \f -> case f of{
-  A (n,e) -> S(O)
-  C n l -> sum (map cantA fs)
+  A (n,e) -> 1;
+  C n l -> sum (map cantA l)
+}
 
 ----
 -- 5
 
-pertenece :: Nombre -> FS -> Bool 
-pertenece = undefined
+anyArboles :: (a -> b -> Bool) -> a -> [b] -> Bool
+anyArboles = \f -> \n -> \l -> case l of {
+  [] -> False;
+  x:xs -> case f n x of {
+    True -> True;
+    False -> anyArboles f n xs    
+  }
+} 
+
+pertenece :: Nombre -> FS -> Bool
+pertenece = \n -> \f -> case f of {
+  A (m,e) -> n==m;
+  C o l -> o==n || anyArboles pertenece n l
+}
 
 ----
 -- 6
+
+existeCarpeta :: FS -> [FS] -> Bool
+existeCarpeta = \f -> \l -> case f of {
+  A (n,e) -> error "no es carpeta";
+  C n f -> case l of {
+    [] -> False;
+    x:xs -> case x of {
+      A (m,e) -> existeCarpeta (C n f) xs;
+      C m i -> m == n || existeCarpeta (C n f) xs
+    }
+  }
+}
+
+existeArchivo :: FS -> [FS] -> Bool
+existeArchivo = \f -> \l -> case f of {
+  A (n,e) -> case l of {
+    [] -> False;
+    x:xs -> case x of {
+      A (m,g) -> (n == m && e==g) || existeArchivo (A (n,e)) xs;
+      C m i -> existeArchivo (A (n,e)) xs
+    }
+  };
+  C n l -> error "no es archivo"
+}
+
 valido :: FS-> Bool
-valido = undefined
+valido = \f -> case f of {
+  A (n,e) -> True;
+  C n l -> case l of {
+    [] -> True;
+    x:xs -> case x of {
+      A (m,e) -> case (existeArchivo (A (m,e)) xs) of {
+        True -> False;
+        False -> valido (C n xs)
+      };
+      C o i -> case (existeCarpeta (C o i) xs) of {
+        True -> False;
+        False -> case (valido (C o i)) of {
+          True -> valido (C n xs);
+          False -> False
+        }
+      }  
+    }
+  }
+} 
+
 ----
 -- 7
 archivosExt :: Ext -> FS -> [Nombre]
 archivosExt = undefined
 ----
 -- 8
-cambiarNom :: Nombre -> Nombre -> FS -> FS 
-cambiarNom = undefined		
+cambiarNom :: Nombre -> Nombre -> FS -> FS
+cambiarNom = undefined
 ----
 -- 9
 nivelesC :: FS -> Int
-nivelesC = undefined	
+nivelesC = undefined
 ----
 -- 10
-borrar :: Nombre -> FS -> FS 
+borrar :: Nombre -> FS -> FS
 borrar = undefined
 ----
 -- 11
 ordenar :: FS-> FS
 ordenar = undefined
 
-Hola :: FS
-Hola = undefined
+----
+-- Extras
+
+archivosNombresIguales :: FS -> FS -> Bool
+archivosNombresIguales = \f -> \g -> case f of {
+  C n l -> error "al menos uno de los dos archivos no es una archivo";
+  A (n,e) -> case g of {
+    C i l -> error "al menos uno de los dos archivos no es una archivo";
+    A (m,f) -> m==n && e==f
+  }  
+}
+
+
+carpetasNombresIguales :: FS -> FS -> Bool
+carpetasNombresIguales = \f -> \g -> case f of {
+  A (n,e) -> error "al menos uno de los dos archivos no es una carpeta";
+  C n l -> case g of {
+    A (n,e) -> error "al menos uno de los dos archivos no es una carpeta";
+    C m i -> m==n
+  }  
+}
