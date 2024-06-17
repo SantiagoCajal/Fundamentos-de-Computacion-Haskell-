@@ -316,39 +316,6 @@ sustituirCarpeta = \f -> \e -> case f of {
   C n l -> C n e
 }
 
-----
--- Proyecto Personal: Hacer una funcion que recibe un nombre y un File System y pasa una lista con la ruta necesaria para llegar a cada uno de los archivos que se llamen igual sin contar extension
 
-cantidadArchivo :: Nombre -> FS -> Int
-cantidadArchivo = \m -> \f -> case f of {
-  A (n,e) -> case (m == n) of {
-    True -> 1;
-    False -> 0
-  };
-  C n l -> case l of {
-    [] -> case (m == n) of {
-      True -> 1;
-      False -> 0
-    };
-    x:xs -> case x of {
-      A (o,e) -> case (m ++ nombre x) of {
-        True -> 1 + (cantidadArchivo m (C n xs);   
-        False -> (cantidadArchivo m (C n xs)
-      };
-      C o e -> cantidadArchivo m (C n xs) + (cantidadArchivo m x)
-    }
-  }
-}
-
-rutaArchivo :: Nombre -> FS -> [[FS]]
-rutaArchivo = \m -> \f -> case f of {
-  A (n,e) -> case (n == m) of {
-    True -> [[m]];
-    False -> [[]];
-  };
-  C n l -> case (cantidadArchivo > 0) of {
-    True -> 
-
-  
 
 
