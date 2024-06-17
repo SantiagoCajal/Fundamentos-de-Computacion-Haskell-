@@ -318,7 +318,25 @@ sustituirCarpeta = \f -> \e -> case f of {
 
 cantidadArchivo :: Nombre -> FS -> Int
 cantidadArchivo = \m -> \f -> case f of {
-  A (n,e) -> 
+  A (n,e) -> case (m == nombre f) of {
+    True -> 1;
+    False -> 0
+  };
+  C n l -> case l of {
+    [] -> case (m == n) of {
+      True -> 1;
+      False -> 0
+    };
+    x:xs -> case x of {
+      A (o,e) -> case (m ++ nombre x) of {
+        True -> 1 + (cantidadArchivo m (C n xs);   
+        False -> (cantidadArchivo m (C n xs)
+      };
+      C o e -> cantidadArchivo m (C n xs) + (cantidadArchivo m x)
+    }
+  }
+}
+
   
 
 
