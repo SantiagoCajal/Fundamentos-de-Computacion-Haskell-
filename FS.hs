@@ -58,6 +58,18 @@ craiz = C "raiz" [cmusica, A ("notas", Txt), cort, csys]
 ----
 -- 2
 
+stringExtension :: FS -> String
+stringExtension = \f -> case f of {
+  A (n,e) -> case e of {
+    Txt -> ".txt";
+    Mp3 -> ".mp3";
+    Jar -> ".jar";
+    Doc -> ".doc";
+    Hs -> ".hs";
+  };
+  C n l -> error "no tiene extension"
+}
+
 nombre :: FS -> Nombre
 nombre = \f -> case f of {
     A (n,e) -> n ++ stringExtension (A (n,e));
@@ -211,18 +223,6 @@ nivelesC = \f -> case f of {
 ----
 -- 10
 
-stringExtension :: FS -> String
-stringExtension = \f -> case f of {
-  A (n,e) -> case e of {
-    Txt -> ".txt";
-    Mp3 -> ".mp3";
-    Jar -> ".jar";
-    Doc -> ".doc";
-    Hs -> ".hs";
-  };
-  C n l -> error "no tiene extension"
-}
-
 meterCarpeta :: FS -> FS -> FS
 meterCarpeta = \f -> \e -> case f of {
   A (n,e) -> error "no es una carpeta";
@@ -316,6 +316,9 @@ sustituirCarpeta = \f -> \e -> case f of {
   C n l -> C n e
 }
 
-buscarArchivo 
+cantidadArchivo :: Nombre -> FS -> Int
+cantidadArchivo = \m -> \f -> case f of {
+  A (n,e) -> 
+  
 
 
