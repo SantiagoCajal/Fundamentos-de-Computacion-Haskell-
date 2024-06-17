@@ -12,11 +12,11 @@ module FS where
 
 import Prelude
 
--- Nombre: Estudiante 1
--- Número: Estudiante 1
+-- Nombre: Santiago Cajal
+-- Número: 282766
 
--- Nombre: Estudiante 2
--- Número: Estudiante 2
+-- Nombre: Miles "Spiderman" Morales
+-- Número: 424242
 
 
 type Nombre = String 
@@ -315,5 +315,7 @@ sustituirCarpeta = \f -> \e -> case f of {
   A (n,g) -> error "no es una carpeta";
   C n l -> C n e
 }
+
+buscarArchivo 
 
 
